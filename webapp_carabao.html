@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carabao Luxury Tenant App</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --gold-primary: #D4AF37;
+            --gold-gradient: linear-gradient(135deg, #BF953F, #FCF6BA, #B38728, #FBF5B7, #AA771C);
+            --black-bg: #0a0a0a;
+            --dark-card: #161616;
+            --text-gold: #c5a059;
+            --text-white: #ffffff;
+            --border-gold: rgba(212, 175, 55, 0.3);
+            --inter-font: 'Inter', sans-serif;
+            --success: #22c55e;
+            --danger: #ef4444;
+        }
+
+        * { 
+            box-sizing: border-box; 
+            -webkit-font-smoothing: antialiased; 
+            font-family: var(--inter-font);
+        }
+
+        body {
+            margin: 0;
+            background-color: #1a1a1a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: var(--text-white);
+        }
+
+        .iphone {
+            width: 375px;
+            height: 812px;
+            background: var(--black-bg);
+            border: 8px solid #333;
+            border-radius: 44px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 40px 100px rgba(0,0,0,0.9);
+        }
+
+        .page {
+            position: absolute;
+            inset: 0;
+            display: none;
+            flex-direction: column;
+            background: var(--black-bg);
+            z-index: 1;
+            padding-bottom: 90px;
+        }
+        .page.active { display: flex; }
+
+        .header {
+            padding: 55px 20px 15px;
+            display: flex; justify-content: space-between; align-items: center;
+            background: var(--black-bg); border-bottom: 1px solid var(--border-gold);
+        }
+        .logo-box img { height: 35px; object-fit: contain; }
+        .profile-trigger {
+            width: 35px; height: 35px; border-radius: 50%; border: 1.5px solid var(--gold-primary);
+            background: url('https://i.pravatar.cc/100?u=carabao') center/cover; cursor: pointer;
+        }
+
+        .scroll-area {
+            flex: 1; overflow-y: auto; padding: 0 20px 20px; scrollbar-width: none;
+        }
+        .scroll-area::-webkit-scrollbar { display: none; }
+
+        .section-header { 
+            display: flex; justify-content: space-between; align-items: center; margin: 24px 0 16px; 
+        }
+        .section-header h2 { font-size: 14px; font-weight: 700; color: var(--gold-primary); margin: 0; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* Forms */
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; font-size: 10px; color: var(--gold-primary); text-transform: uppercase; margin-bottom: 5px; font-weight: 700; }
+        .input-group input, .input-group select { 
+            width: 100%; padding: 12px; background: #222; border: 1px solid #333; border-radius: 12px; color: white; outline: none; font-size: 13px;
+        }
+        .input-group input:focus { border-color: var(--gold-primary); }
+
+        /* Search Bar */
+        .search-container {
+            position: relative; margin: 15px 0;
+        }
+        .search-container input {
+            width: 100%; padding: 12px 12px 12px 40px; background: #222; border: 1px solid var(--border-gold); border-radius: 12px; color: white; outline: none;
+        }
+        .search-container i {
+            position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--gold-primary);
+        }
+
+        /* Quick Menu */
+        .quick-menu {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px;
+        }
+        .menu-btn { display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; }
+        .btn-icon {
+            width: 58px; height: 58px; background: var(--dark-card); border: 1px solid var(--border-gold);
+            border-radius: 18px; display: flex; align-items: center; justify-content: center;
+            color: var(--gold-primary); font-size: 20px;
+        }
+        .menu-btn span { font-size: 9px; font-weight: 700; color: #888; text-transform: uppercase; }
+
+        /* Cards & Lists */
+        .lux-card { background: var(--dark-card); border: 1px solid var(--border-gold); border-radius: 20px; padding: 16px; margin-bottom: 12px; }
+        
+        .grid-list { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .grid-item { background: var(--dark-card); border: 1px solid var(--border-gold); border-radius: 15px; overflow: hidden; }
+        .grid-img { height: 100px; background: #333 center/cover; }
+        .grid-info { padding: 10px; }
+        .grid-info h4 { margin: 0; font-size: 12px; color: var(--gold-primary); }
+        .grid-info p { margin: 4px 0 0; font-size: 10px; color: #888; }
+
+        /* Navigation */
+        .bottom-nav {
+            position: absolute; bottom: 0; left: 0; right: 0; height: 90px;
+            background: rgba(10,10,10,0.98); display: flex; justify-content: space-around;
+            align-items: center; padding-bottom: 25px; border-top: 1px solid var(--border-gold); z-index: 100;
+        }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: #555; font-size: 9px; font-weight: 700; cursor: pointer; }
+        .nav-item.active { color: var(--gold-primary); }
+        .nav-item i { font-size: 20px; margin-bottom: 4px; }
+        .qr-dock { width: 65px; height: 65px; background: var(--gold-gradient); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #000; font-size: 26px; margin-top: -50px; border: 4px solid var(--black-bg); cursor: pointer; }
+
+        /* Buttons */
+        .btn-gold { width: 100%; padding: 16px; background: var(--gold-gradient); border: none; border-radius: 15px; font-weight: 800; color: #000; text-transform: uppercase; cursor: pointer; }
+
+        /* Canteen Specific */
+        .canteen-item { display: flex; gap: 12px; padding: 12px; background: var(--dark-card); border-radius: 15px; margin-bottom: 10px; align-items: center; border: 1px solid var(--border-gold); }
+        .canteen-thumb { width: 70px; height: 70px; border-radius: 12px; object-fit: cover; }
+        .canteen-info { flex: 1; }
+        .canteen-price { color: var(--gold-primary); font-weight: 700; font-size: 14px; margin-top: 4px; }
+        .add-btn { width: 32px; height: 32px; border-radius: 10px; background: var(--gold-gradient); color: #000; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; }
+        .cart-badge { position: absolute; top: -5px; right: -5px; background: #ff0000; color: white; border-radius: 50%; width: 15px; height: 15px; font-size: 9px; display: none; align-items: center; justify-content: center; font-weight: 800; }
+
+        /* Support List */
+        .contact-row { display: flex; align-items: center; gap: 15px; padding: 15px; border-bottom: 1px solid #222; }
+        .contact-icon { width: 40px; height: 40px; border-radius: 50%; background: rgba(212,175,55,0.1); color: var(--gold-primary); display: flex; align-items: center; justify-content: center; }
+
+        /* Directory Styles */
+        .dir-building-label { font-size: 11px; font-weight: 800; color: var(--gold-primary); margin: 20px 0 10px; text-transform: uppercase; border-left: 3px solid var(--gold-primary); padding-left: 10px; }
+        .dir-item { background: var(--dark-card); border-bottom: 1px solid #222; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .dir-item:last-child { border-bottom: none; border-radius: 0 0 15px 15px; }
+        .dir-item:first-child { border-radius: 15px 15px 0 0; }
+        .dir-floor { width: 45px; height: 45px; border-radius: 12px; background: #222; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid #333; }
+        .dir-floor .num { font-size: 16px; font-weight: 800; color: var(--gold-primary); line-height: 1; }
+        .dir-floor .label { font-size: 7px; color: #888; }
+
+        /* Overlay */
+        .overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.97); z-index: 2000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(10px); }
+        
+        /* QR Code Modern Design */
+        .qr-container { width: 320px; text-align: center; color: white; padding: 20px; }
+        .qr-card { background: white; border-radius: 30px; padding: 25px; margin-bottom: 20px; position: relative; }
+        .qr-card img { width: 100%; border-radius: 15px; }
+        .qr-info-box { background: var(--dark-card); border-radius: 20px; padding: 15px; border: 1px solid var(--border-gold); text-align: left; }
+        
+        /* Visitor Specific */
+        .visitor-stat-card { background: var(--dark-card); border: 1px solid var(--border-gold); border-radius: 18px; padding: 15px; text-align: center; }
+        .visitor-stat-num { font-size: 20px; font-weight: 800; color: var(--gold-primary); display: block; }
+        .visitor-stat-label { font-size: 10px; color: #888; text-transform: uppercase; }
+
+        /* News Cards */
+        .news-track { display: flex; gap: 15px; overflow-x: auto; padding-bottom: 10px; scrollbar-width: none; }
+        .news-track::-webkit-scrollbar { display: none; }
+        .news-card { min-width: 260px; height: 160px; border-radius: 20px; position: relative; overflow: hidden; background: #333; }
+        .news-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.9), transparent); display: flex; flex-direction: column; justify-content: flex-end; padding: 15px; }
+        .news-tag { align-self: flex-start; padding: 4px 8px; border-radius: 6px; background: var(--gold-primary); color: #000; font-size: 9px; font-weight: 800; margin-bottom: 8px; }
+
+    </style>
+</head>
+<body>
+
+    <div class="iphone">
+        
+        <!-- HOME PAGE (LANDING PAGE WITH ANNOUNCEMENTS/NEWS) -->
+        <div id="page-home" class="page active">
+            <div class="header">
+                <div class="profile-trigger" onclick="navigateTo('page-settings')"></div>
+                <div class="logo-box">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/e/ea/Carabao_Logo.png" alt="Carabao">
+                </div>
+                <div onclick="navigateTo('page-notifications')"><i class="fa-regular fa-bell" style="color: var(--gold-primary); font-size: 20px; cursor: pointer;"></i></div>
+            </div>
+
+            <div class="scroll-area">
+                <!-- Welcome Card -->
+                <div class="lux-card" style="background: var(--gold-gradient); color: #000; padding: 25px; margin-top: 20px;">
+                    <div style="font-size: 11px; font-weight: 800; text-transform: uppercase; margin-bottom: 8px;">Exclusive Tenant Access</div>
+                    <div style="font-size: 22px; font-weight: 800;">Welcome, Somchai</div>
+                    <div style="font-size: 12px; margin-top: 10px; font-weight: 600;">Building B • Floor 4 • Unit 402</div>
+                </div>
+
+                <div class="section-header"><h2>Premium Services</h2></div>
+                <div class="quick-menu">
+                    <div class="menu-btn" onclick="navigateTo('page-invite')">
+                        <div class="btn-icon"><i class="fa-solid fa-user-check"></i></div>
+                        <span>Visitor</span>
+                    </div>
+                    <div class="menu-btn" onclick="navigateTo('page-dorm')">
+                        <div class="btn-icon"><i class="fa-solid fa-hotel"></i></div>
+                        <span>Dorm</span>
+                    </div>
+                    <div class="menu-btn" onclick="navigateTo('page-canteen')">
+                        <div class="btn-icon"><i class="fa-solid fa-plate-wheat"></i></div>
+                        <span>Canteen</span>
+                    </div>
+                    <div class="menu-btn" onclick="navigateTo('page-directory')">
+                        <div class="btn-icon"><i class="fa-solid fa-sitemap"></i></div>
+                        <span>Directory</span>
+                    </div>
+                </div>
+
+                <!-- NEW: ANNOUNCEMENTS -->
+                <div class="section-header">
+                    <h2>Announcements</h2>
+                    <span style="font-size: 10px; color: var(--gold-primary); font-weight: 700;">SEE ALL</span>
+                </div>
+                <div class="lux-card" style="border-left: 4px solid var(--gold-primary); display: flex; align-items: flex-start; gap: 15px;">
+                    <i class="fa-solid fa-bullhorn" style="color: var(--gold-primary); margin-top: 3px;"></i>
+                    <div>
+                        <div style="font-size: 13px; font-weight: 700;">Scheduled Maintenance</div>
+                        <div style="font-size: 11px; color: #888; margin-top: 4px;">Water supply will be temporarily suspended in Building B this Sunday from 08:00 - 12:00.</div>
+                    </div>
+                </div>
+
+                <!-- NEW: NEWS & EVENTS -->
+                <div class="section-header"><h2>News & Events</h2></div>
+                <div class="news-track">
+                    <div class="news-card" style="background-image: url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=400'); background-size: cover;">
+                        <div class="news-overlay">
+                            <span class="news-tag">EVENT</span>
+                            <div style="font-weight: 800; font-size: 14px;">Carabao Summer Gala 2024</div>
+                            <div style="font-size: 10px; color: #ccc;">June 15 • Grand Ballroom</div>
+                        </div>
+                    </div>
+                    <div class="news-card" style="background-image: url('https://images.unsplash.com/photo-1554469384-e58fac16e23a?auto=format&fit=crop&w=400'); background-size: cover;">
+                        <div class="news-overlay">
+                            <span class="news-tag">UPDATE</span>
+                            <div style="font-weight: 800; font-size: 14px;">New Fitness Center Equipment</div>
+                            <div style="font-size: 10px; color: #ccc;">Now available on Floor 2</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VISITOR INVITE DASHBOARD (No Changes) -->
+        <div id="page-invite" class="page">
+            <div class="header">
+                <i class="fa-solid fa-chevron-left" style="color:var(--gold-primary);" onclick="navigateTo('page-home')"></i>
+                <h2 style="font-size:14px; color:var(--gold-primary); margin:0">VISITOR INVITE</h2>
+                <div></div>
+            </div>
+            <div class="scroll-area">
+                <div class="grid-list" style="margin-top: 20px; margin-bottom: 20px;">
+                    <div class="visitor-stat-card">
+                        <span class="visitor-stat-num">12</span>
+                        <span class="visitor-stat-label">Expected</span>
+                    </div>
+                    <div class="visitor-stat-card">
+                        <span class="visitor-stat-num">04</span>
+                        <span class="visitor-stat-label">Checked-In</span>
+                    </div>
+                </div>
+                <div class="lux-card" style="padding: 25px; text-align: center; border-style: dashed; border-width: 2px; cursor: pointer;" onclick="navigateTo('page-new-invite')">
+                    <i class="fa-solid fa-user-plus" style="font-size: 30px; color: var(--gold-primary); margin-bottom: 12px;"></i>
+                    <h3 style="margin: 0; font-size: 16px;">Create New Invite</h3>
+                    <p style="font-size: 11px; color: #888; margin-top: 5px;">Generate a secure QR code for your guest</p>
+                </div>
+                <div class="section-header"><h2>Upcoming</h2></div>
+                <div class="lux-card" style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="font-size: 14px; font-weight: 700;">Robert Wilson</div>
+                        <div style="font-size: 10px; color: #888;">Today • 15:30 • Business</div>
+                    </div>
+                    <i class="fa-solid fa-qrcode" style="color: var(--gold-primary); font-size: 20px;"></i>
+                </div>
+                <div class="section-header"><h2>Cancelled / Expired</h2></div>
+                <div class="lux-card" style="opacity: 0.5;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <div style="font-size: 14px; font-weight: 700;">Jane Doe</div>
+                            <div style="font-size: 10px; color: #888;">May 10 • Expired</div>
+                        </div>
+                        <span style="font-size: 9px; color: var(--danger); font-weight: 800;">EXPIRED</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- NEW INVITE FORM PAGE (No Changes) -->
+        <div id="page-new-invite" class="page">
+            <div class="header">
+                <i class="fa-solid fa-chevron-left" style="color:var(--gold-primary);" onclick="navigateTo('page-invite')"></i>
+                <h2 style="font-size:14px; color:var(--gold-primary); margin:0">NEW INVITE</h2>
+                <div></div>
+            </div>
+            <div class="scroll-area">
+                <div class="section-header"><h2>Guest Information</h2></div>
+                <div class="input-group"><label>Visitor Name</label><input type="text" placeholder="Full Name"></div>
+                <div class="input-group"><label>Car Plate Number</label><input type="text" placeholder="e.g. กข 1234"></div>
+                <div class="input-group"><label>Visit Date</label><input type="date"></div>
+                <div class="input-group"><label>Visit Time</label><input type="time"></div>
+                <div class="input-group"><label>Purpose of Visit</label><select><option>Delivery</option><option>Business Meeting</option><option>Personal Guest</option><option>Maintenance</option></select></div>
+                <button class="btn-gold" style="margin-top: 20px;" onclick="togglePopup('qr-overlay')">Generate QR Invite</button>
+            </div>
+        </div>
+
+        <!-- TODAY'S MENU (No Changes) -->
+        <div id="page-canteen" class="page">
+            <div class="header">
+                <i class="fa-solid fa-chevron-left" style="color:var(--gold-primary);" onclick="navigateTo('page-home')"></i>
+                <h2 style="font-size:14px; color:var(--gold-primary); margin:0">TODAY'S MENU</h2>
+                <div style="position: relative;"><i class="fa-solid fa-cart-shopping" style="color: var(--gold-primary); font-size: 20px;"></i><span id="cart-count" class="cart-badge">0</span></div>
+            </div>
+            <div class="scroll-area">
+                <div class="section-header"><h2>Chef's Selection</h2></div>
+                <div class="canteen-item"><img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=200" class="canteen-thumb"><div class="canteen-info"><h4>Wagyu Pad Krapow</h4><div class="canteen-price">฿ 150.00</div></div><div class="add-btn" onclick="addToCart()"><i class="fa-solid fa-plus"></i></div></div>
+                <div class="canteen-item"><img src="https://images.unsplash.com/photo-1604382354936-07c5d9983bd3?auto=format&fit=crop&w=200" class="canteen-thumb"><div class="canteen-info"><h4>Tom Yum Seafood</h4><div class="canteen-price">฿ 180.00</div></div><div class="add-btn" onclick="addToCart()"><i class="fa-solid fa-plus"></i></div></div>
+                <div id="pay-section" style="margin-top: 30px; display: none;"><div class="lux-card" style="background: rgba(212,175,55,0.05);"><div style="display: flex; justify-content: space-between; margin-bottom: 10px;"><span>Subtotal</span><span id="subtotal">฿ 0.00</span></div><div style="display: flex; justify-content: space-between; font-weight: 800; border-top: 1px solid #333; padding-top: 10px;"><span>Total</span><span id="total" style="color: var(--gold-primary);">฿ 0.00</span></div></div><button class="btn-gold">Confirm and Pay</button></div>
+            </div>
+        </div>
+
+        <!-- CONTACT SUPPORT (No Changes) -->
+        <div id="page-contact" class="page">
+            <div class="header"><i class="fa-solid fa-chevron-left" style="color:var(--gold-primary);" onclick="navigateTo('page-home')"></i><h2 style="font-size:14px; color:var(--gold-primary); margin:0">CONTACT SUPPORT</h2><div></div></div>
+            <div class="scroll-area" style="padding: 0;"><div class="section-header" style="padding: 0 20px;"><h2>Direct Contacts</h2></div><div class="contact-row"><div class="contact-icon"><i class="fa-solid fa-shield-halved"></i></div><div style="flex:1"><div style="font-weight: 700; font-size: 14px;">Building Security</div><div style="font-size: 11px; color: #888;">24/7 Monitoring Center</div></div><i class="fa-solid fa-phone" style="color: var(--gold-primary);"></i></div></div>
+        </div>
+
+        <!-- BOOKING (No Changes) -->
+        <div id="page-booking" class="page">
+            <div class="header"><i class="fa-solid fa-chevron-left" style="color:var(--gold-primary);" onclick="navigateTo('page-home')"></i><h2 style="font-size:14px; color:var(--gold-primary); margin:0">BOOK A SPACE</h2><div></div></div>
+            <div class="scroll-area"><div class="section-header"><h2>Facilities</h2></div><div class="grid-list"><div class="grid-item"><div class="grid-img" style="background-image: url('https://images.unsplash.com/photo-1431540015161-0bf868a2d407?auto=format&fit=crop&w=300');"></div><div class="grid-info"><h4>Executive Room</h4><p>FL 15 • 12 Pax</p></div></div></div></div>
+        </div>
+
+        <!-- DORMITORY (No Changes) -->
+        <div id="page-dorm" class="page">
+            <div class="header"><i class="fa-solid fa-chevron-left" style="color:var(--gold-primary);" onclick="navigateTo('page-home')"></i><h2 style="font-size:14px; color:var(--gold-primary); margin:0">MY DORMITORY</h2><div></div></div>
+            <div class="scroll-area"><div class="lux-card" style="margin-top: 15px;"><div style="display: flex; justify-content: space-between; align-items: center;"><div><div style="font-size: 10px; color: #888; text-transform: uppercase;">Current Unit</div><div style="font-size: 18px; font-weight: 800; color: var(--gold-primary);">Unit B-402</div></div><div style="text-align: right;"><div style="font-size: 10px; color: #888; text-transform: uppercase;">Status</div><div style="font-size: 12px; font-weight: 700; color: var(--success);">ACTIVE</div></div></div></div></div>
+        </div>
+
+        <!-- DIRECTORY (UPDATED: Searchable List by Floor/Building) -->
+        <div id="page-directory" class="page">
+            <div class="header">
+                <i class="fa-solid fa-chevron-left" style="color:var(--gold-primary);" onclick="navigateTo('page-home')"></i>
+                <h2 style="font-size:14px; color:var(--gold-primary); margin:0">DIRECTORY</h2>
+                <div></div>
+            </div>
+            <div class="scroll-area">
+                <div class="search-container">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="dir-search" placeholder="Search by name, floor, building..." onkeyup="filterDirectory()">
+                </div>
+
+                <div id="directory-list">
+                    <div class="dir-group" data-building="A">
+                        <div class="dir-building-label">Building A - Corporate HQ</div>
+                        <div class="dir-item">
+                            <div style="flex:1">
+                                <div style="font-weight: 700; font-size: 13px;">Executive Management</div>
+                                <div style="font-size: 11px; color: #888;">Main Office</div>
+                            </div>
+                            <div class="dir-floor"><span class="num">15</span><span class="label">FLOOR</span></div>
+                        </div>
+                        <div class="dir-item">
+                            <div style="flex:1">
+                                <div style="font-weight: 700; font-size: 13px;">Human Resources</div>
+                                <div style="font-size: 11px; color: #888;">Recruitment & Benefits</div>
+                            </div>
+                            <div class="dir-floor"><span class="num">12</span><span class="label">FLOOR</span></div>
+                        </div>
+                        <div class="dir-item">
+                            <div style="flex:1">
+                                <div style="font-weight: 700; font-size: 13px;">Finance & Accounting</div>
+                                <div style="font-size: 11px; color: #888;">Billing Inquiries</div>
+                            </div>
+                            <div class="dir-floor"><span class="num">10</span><span class="label">FLOOR</span></div>
+                        </div>
+                    </div>
+
+                    <div class="dir-group" data-building="B">
+                        <div class="dir-building-label">Building B - Residential</div>
+                        <div class="dir-item">
+                            <div style="flex:1">
+                                <div style="font-weight: 700; font-size: 13px;">Sky Lounge & Bar</div>
+                                <div style="font-size: 11px; color: #888;">Entertainment Area</div>
+                            </div>
+                            <div class="dir-floor"><span class="num">R</span><span class="label">ROOF</span></div>
+                        </div>
+                        <div class="dir-item">
+                            <div style="flex:1">
+                                <div style="font-weight: 700; font-size: 13px;">Fitness Center</div>
+                                <div style="font-size: 11px; color: #888;">Gym & Sauna</div>
+                            </div>
+                            <div class="dir-floor"><span class="num">02</span><span class="label">FLOOR</span></div>
+                        </div>
+                        <div class="dir-item">
+                            <div style="flex:1">
+                                <div style="font-weight: 700; font-size: 13px;">Canteen & Dining</div>
+                                <div style="font-size: 11px; color: #888;">Daily Meals</div>
+                            </div>
+                            <div class="dir-floor"><span class="num">01</span><span class="label">FLOOR</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- NOTIFICATIONS (No Changes) -->
+        <div id="page-notifications" class="page">
+            <div class="header" style="justify-content: center; position: relative;"><i class="fa-solid fa-chevron-left" style="color:var(--gold-primary); position: absolute; left: 20px;" onclick="navigateTo('page-home')"></i><h2 style="font-size:14px; color:var(--gold-primary); margin:0">NOTIFICATIONS</h2></div>
+            <div class="scroll-area"><div class="lux-card" style="margin-top: 25px;"><h4>Monthly Bill Ready</h4><p>Your statement for May is now available.</p></div></div>
+        </div>
+
+        <!-- SETTINGS / PROFILE (UPDATED: Fields & Change Password) -->
+        <div id="page-settings" class="page">
+            <div class="header">
+                <i class="fa-solid fa-chevron-left" style="color:var(--gold-primary);" onclick="navigateTo('page-home')"></i>
+                <h2 style="font-size:14px; color:var(--gold-primary); margin:0">USER PROFILE</h2>
+                <div></div>
+            </div>
+            <div class="scroll-area">
+                <div style="text-align: center; padding: 30px 0 20px;">
+                    <div style="width: 90px; height: 90px; border-radius: 50%; border: 3px solid var(--gold-primary); margin: 0 auto 15px; background: url('https://i.pravatar.cc/150?u=carabao') center/cover; position: relative;">
+                        <div style="position: absolute; bottom: 0; right: 0; background: var(--gold-gradient); width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 3px solid var(--black-bg);"><i class="fa-solid fa-camera" style="font-size: 12px; color: #000;"></i></div>
+                    </div>
+                    <h3 style="margin: 0; font-size: 18px; color: var(--gold-primary);">Somchai Carabao</h3>
+                    <p style="font-size: 11px; color: #888; margin: 4px 0 0;">Senior Logistics Manager</p>
+                </div>
+
+                <div class="section-header"><h2>Profile Details</h2></div>
+                <div class="lux-card">
+                    <div class="input-group"><label>Full Name</label><input type="text" value="Somchai Carabao"></div>
+                    <div class="input-group"><label>Employee ID</label><input type="text" value="CBG-88921" readonly style="background: #111; color: #666;"></div>
+                    <div class="input-group"><label>Email Address</label><input type="email" value="somchai.c@carabao.com"></div>
+                    <div class="input-group"><label>Phone Number</label><input type="tel" value="+66 81-234-5678"></div>
+                    <div class="input-group"><label>Unit Assignment</label><input type="text" value="B-402" readonly style="background: #111; color: #666;"></div>
+                    <button class="btn-gold" style="padding: 12px; font-size: 12px;">Update Profile</button>
+                </div>
+
+                <div class="section-header"><h2>Security</h2></div>
+                <div class="lux-card">
+                    <div class="input-group"><label>Current Password</label><input type="password" placeholder="••••••••"></div>
+                    <div class="input-group"><label>New Password</label><input type="password" placeholder="Enter new password"></div>
+                    <div class="input-group"><label>Confirm New Password</label><input type="password" placeholder="Repeat new password"></div>
+                    <button class="btn-gold" style="background: none; border: 1px solid var(--gold-primary); color: var(--gold-primary); padding: 12px; font-size: 12px;">Change Password</button>
+                </div>
+
+                <button class="btn-gold" style="margin-top: 10px; background: none; border: 1px solid var(--danger); color: var(--danger);">Logout</button>
+                <div style="height: 30px;"></div>
+            </div>
+        </div>
+
+        <!-- BOTTOM NAVIGATION -->
+        <div class="bottom-nav">
+            <div class="nav-item active" id="nav-home" onclick="navigateTo('page-home')">
+                <i class="fa-solid fa-house"></i>
+                <span>HOME</span>
+            </div>
+            <div class="nav-item">
+                <i class="fa-solid fa-square-p"></i>
+                <span>PARKING</span>
+            </div>
+            <div class="qr-dock" onclick="togglePopup('qr-overlay')">
+                <i class="fa-solid fa-qrcode"></i>
+            </div>
+            <div class="nav-item" id="nav-booking" onclick="navigateTo('page-booking')">
+                <i class="fa-solid fa-calendar-check"></i>
+                <span>BOOKING</span>
+            </div>
+            <div class="nav-item" id="nav-contact" onclick="navigateTo('page-contact')">
+                <i class="fa-solid fa-address-book"></i>
+                <span>CONTACT</span>
+            </div>
+        </div>
+
+        <!-- QR CODE OVERLAY (No Changes) -->
+        <div id="qr-overlay" class="overlay">
+            <div class="qr-container">
+                <div style="display: flex; justify-content: flex-end; margin-bottom: 20px;"><i class="fa-solid fa-xmark" style="font-size: 24px; cursor: pointer;" onclick="togglePopup('qr-overlay')"></i></div>
+                <div class="qr-card">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=TENANT-SOMCHAI-ACCESS&margin=10&color=000000" alt="Access QR">
+                    <div style="color: #000; font-weight: 800; font-size: 18px; margin-top: 15px;">SECURE ACCESS QR</div>
+                </div>
+                <div class="qr-info-box">
+                    <div style="display: flex; align-items: center; gap: 12px;"><i class="fa-solid fa-user-shield" style="color: var(--gold-primary);"></i><div><div style="font-size: 10px; color: #888;">IDENTIFIED TENANT</div><div style="font-size: 14px; font-weight: 700;">SOMCHAI CARABAO</div></div></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let cartCount = 0;
+        let totalPrice = 0;
+
+        function navigateTo(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            const target = document.getElementById(pageId);
+            if (target) target.classList.add('active');
+            
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            if (pageId === 'page-home') document.getElementById('nav-home').classList.add('active');
+            if (pageId === 'page-booking') document.getElementById('nav-booking').classList.add('active');
+            if (pageId === 'page-contact') document.getElementById('nav-contact').classList.add('active');
+        }
+
+        function togglePopup(id) {
+            const el = document.getElementById(id);
+            el.style.display = (el.style.display === 'flex') ? 'none' : 'flex';
+        }
+
+        function addToCart() {
+            cartCount++;
+            totalPrice += 150;
+            const badge = document.getElementById('cart-count');
+            badge.innerText = cartCount;
+            badge.style.display = 'flex';
+            document.getElementById('pay-section').style.display = 'block';
+            document.getElementById('subtotal').innerText = '฿ ' + (totalPrice).toFixed(2);
+            document.getElementById('total').innerText = '฿ ' + (totalPrice).toFixed(2);
+        }
+
+        function filterDirectory() {
+            const query = document.getElementById('dir-search').value.toLowerCase();
+            const items = document.querySelectorAll('.dir-item');
+            const groups = document.querySelectorAll('.dir-group');
+
+            items.forEach(item => {
+                const text = item.innerText.toLowerCase();
+                if (text.includes(query)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+
+            // Hide headers if no children are visible
+            groups.forEach(group => {
+                const visibleItems = group.querySelectorAll('.dir-item[style="display: flex;"]');
+                if (visibleItems.length === 0 && query !== "") {
+                    group.querySelector('.dir-building-label').style.display = 'none';
+                } else {
+                    group.querySelector('.dir-building-label').style.display = 'block';
+                }
+            });
+        }
+    </script>
+</body>
+</html>
